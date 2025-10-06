@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:garage/screens/check_booking.dart';
 
 class MyBookingsPage extends StatefulWidget {
   final String garageName;
@@ -45,6 +46,12 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
         content: Text(
           'Reserva creada: ${_arrival!.format(context)} | Placa ${_plateCtrl.text}',
         ),
+      ),
+    );
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CheckBookingPage(garageName: widget.garageName),
       ),
     );
     // TODO: integra con tu backend y navega a confirmación o a "Mis Reservas".
@@ -137,8 +144,10 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          const Icon(Icons.calendar_month_rounded,
-                              color: Colors.white),
+                          const Icon(
+                            Icons.calendar_month_rounded,
+                            color: Colors.white,
+                          ),
                         ],
                       ),
                     ),
@@ -156,8 +165,10 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
                         decoration: const InputDecoration(
                           border: InputBorder.none,
                           isDense: true,
-                          contentPadding:
-                              EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
                         ),
                         style: const TextStyle(
                           color: Colors.white,
@@ -246,10 +257,7 @@ class _LabeledField extends StatelessWidget {
           flex: 6,
           child: Text(
             label,
-            style: const TextStyle(
-              fontWeight: FontWeight.w700,
-              fontSize: 15,
-            ),
+            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
           ),
         ),
         const SizedBox(width: 10),
@@ -270,7 +278,10 @@ class _GradientBox extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [_MyBookingsPageState._blueEnd, _MyBookingsPageState._blueStart],
+          colors: [
+            _MyBookingsPageState._blueEnd,
+            _MyBookingsPageState._blueStart,
+          ],
         ),
         borderRadius: BorderRadius.circular(18),
       ),
@@ -279,10 +290,10 @@ class _GradientBox extends StatelessWidget {
     return onTap == null
         ? box
         : InkWell(
-            borderRadius: BorderRadius.circular(18),
-            onTap: onTap,
-            child: box,
-          );
+          borderRadius: BorderRadius.circular(18),
+          onTap: onTap,
+          child: box,
+        );
   }
 }
 

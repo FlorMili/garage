@@ -13,7 +13,7 @@ class _HomeScreenState extends State<HomeScreen>
 
   static List<Widget> _widgetOptions = <Widget>[
     SearchPage(),
-    _PlaceholderPage('Mis Reservas'),
+    MyBookingsView(),
     _PlaceholderPage('Favoritos'),
     _PlaceholderPage('Perfil'),
   ];
