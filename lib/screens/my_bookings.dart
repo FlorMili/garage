@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:garage/screens/screens.dart';
 
 class MyBookingsView extends StatelessWidget {
   const MyBookingsView({
@@ -18,27 +19,34 @@ class MyBookingsView extends StatelessWidget {
   static const _blueEnd = Color(0xFF00C2FF);
 
   void _onPay(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Ir al flujo de pago (TODO)')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Ir al flujo de pago (TODO)')));
   }
 
   void _onCancel(BuildContext context) async {
     final ok = await showDialog<bool>(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Cancelar reserva'),
-        content: const Text('¿Seguro que deseas cancelar esta reserva?'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('No')),
-          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Sí, cancelar')),
-        ],
-      ),
+      builder:
+          (_) => AlertDialog(
+            title: const Text('Cancelar reserva'),
+            content: const Text('¿Seguro que deseas cancelar esta reserva?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('No'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Sí, cancelar'),
+              ),
+            ],
+          ),
     );
     if (ok == true && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Reserva cancelada')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Reserva cancelada')));
       // TODO: llamar API para cancelar y actualizar estado
     }
   }
@@ -51,7 +59,11 @@ class MyBookingsView extends StatelessWidget {
         children: [
           // blobs decorativos
           Positioned(top: -90, left: -80, child: _blob(240, 240)),
-          Positioned(bottom: -70, right: -60, child: _blob(240, 240, reverse: true)),
+          Positioned(
+            bottom: -70,
+            right: -60,
+            child: _blob(240, 240, reverse: true),
+          ),
           Positioned(bottom: 110, left: 60, child: _circle(16)),
           Positioned(bottom: 70, left: 28, child: _circle(9)),
           SafeArea(
@@ -93,7 +105,14 @@ class MyBookingsView extends StatelessWidget {
                       _PillButton(
                         text: 'Pagar',
                         colors: const [_blueStart, _blueEnd],
-                        onTap: () => _onPay(context),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const PaymentSummaryPage(),
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -165,7 +184,11 @@ class _BookingCard extends StatelessWidget {
           end: Alignment.topCenter,
         ),
         boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 16, offset: Offset(0, 8)),
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 16,
+            offset: Offset(0, 8),
+          ),
         ],
       ),
       child: Row(
@@ -177,9 +200,10 @@ class _BookingCard extends StatelessWidget {
               width: 110,
               height: 80,
               color: Colors.white,
-              child: imageAsset == null
-                  ? const _ParkingPlaceholder()
-                  : Image.asset(imageAsset!, fit: BoxFit.cover),
+              child:
+                  imageAsset == null
+                      ? const _ParkingPlaceholder()
+                      : Image.asset(imageAsset!, fit: BoxFit.cover),
             ),
           ),
           const SizedBox(width: 12),
@@ -188,13 +212,16 @@ class _BookingCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800)),
+                Text(
+                  name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
                 const SizedBox(height: 4),
                 Text(
                   address,
@@ -244,7 +271,11 @@ class _PillButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(26),
           gradient: LinearGradient(colors: colors),
           boxShadow: const [
-            BoxShadow(color: Colors.black12, blurRadius: 12, offset: Offset(0, 6)),
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 12,
+              offset: Offset(0, 6),
+            ),
           ],
         ),
         child: Text(
@@ -273,7 +304,11 @@ class _ParkingPlaceholder extends StatelessWidget {
           end: Alignment.bottomRight,
         ),
       ),
-      child: const Icon(Icons.local_parking_rounded, size: 40, color: Colors.black38),
+      child: const Icon(
+        Icons.local_parking_rounded,
+        size: 40,
+        color: Colors.black38,
+      ),
     );
   }
 }
