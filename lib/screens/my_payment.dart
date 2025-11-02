@@ -2,16 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:garage/screens/screens.dart';
 
 class MyPaymentView extends StatelessWidget {
-  const MyPaymentView({
-    super.key,
+  MyPaymentView({
+    Key? key,
     this.garageName = 'Estacionamiento 1',
-    this.address = 'Av. Central 1700, Villa El Salvador 15834',
+    DateTime? checkInTime,
     this.imageAsset, // opcional: 'assets/garage1.jpg'
     this.priceText = 'S/ 5.00 x hora',
-  });
+  })  : checkInTime = checkInTime ?? DateTime.now().subtract(const Duration(hours: 2)),
+        super(key: key);
 
   final String garageName;
-  final String address;
+  final DateTime checkInTime; // hora recibida (o ahora-1h si no se pasa)
   final String? imageAsset;
   final String priceText;
 
@@ -83,12 +84,12 @@ class MyPaymentView extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
 
-                  // Card de la reserva
+                  // Card de la reserva (muestra checkInTime calculado y precio)
                   _BookingCard(
                     name: garageName,
-                    address: address,
+                    checkInTime: _formatCheckIn(checkInTime),
                     imageAsset: imageAsset,
-                    priceText: priceText,
+                    priceText: _computePrice(checkInTime),
                   ),
                   const SizedBox(height: 24),
 
@@ -142,6 +143,27 @@ class MyPaymentView extends StatelessWidget {
       ),
     );
   }
+
+  // formatea DateTime a "H:MM AM/PM"
+  String _formatCheckIn(DateTime dt) {
+    final hour12 = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
+    final minutes = dt.minute.toString().padLeft(2, '0');
+    final ampm = dt.hour >= 12 ? 'PM' : 'AM';
+    return '$hour12:$minutes $ampm';
+  }
+
+  // calcula el precio: tarifa 3 S/ por hora, horas parciales -> hora completa
+  String _computePrice(DateTime checkIn) {
+    final rate = 3;
+    var diff = DateTime.now().difference(checkIn);
+    if (diff.isNegative) diff = Duration.zero;
+    final minutes = diff.inMinutes;
+    var hours = minutes ~/ 60;
+    if (minutes % 60 != 0) hours += 1; // cobrar hora completa si hay minutos
+    if (hours < 1) hours = 1; // mínimo 1 hora
+    final total = rate * hours;
+    return 'S/ $rate x ${hours}h = S/$total';
+  }
 }
 
 /* --------------------------- Widgets internos --------------------------- */
@@ -149,13 +171,13 @@ class MyPaymentView extends StatelessWidget {
 class _BookingCard extends StatelessWidget {
   const _BookingCard({
     required this.name,
-    required this.address,
+    required this.checkInTime,
     this.imageAsset,
     required this.priceText,
   });
 
   final String name;
-  final String address;
+  final String checkInTime;
   final String? imageAsset;
   final String priceText;
 
@@ -215,7 +237,7 @@ class _BookingCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  address,
+                  checkInTime,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(

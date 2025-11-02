@@ -2,18 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:garage/screens/screens.dart';
 
 class MyBookingsView extends StatelessWidget {
-  const MyBookingsView({
-    super.key,
+  MyBookingsView({
+    Key? key,
     this.garageName = 'Estacionamiento 1',
-    this.address = 'Av. Central 1700, Villa El Salvador 15834',
+    DateTime? expirationTime,
     this.imageAsset, // opcional: 'assets/garage1.jpg'
-    this.priceText = 'S/ 5.00 x hora',
-  });
+    this.numEspace = '3',
+  })  : expirationTime = expirationTime ?? DateTime.now(),
+        super(key: key);
 
   final String garageName;
-  final String address;
+  final DateTime expirationTime; // hora recibida (o ahora si no se pasa)
   final String? imageAsset;
-  final String priceText;
+  final String numEspace;
 
   static const _blueStart = Color(0xFF2E8AF6);
   static const _blueEnd = Color(0xFF00C2FF);
@@ -86,9 +87,10 @@ class MyBookingsView extends StatelessWidget {
                   // Card de la reserva
                   _BookingCard(
                     name: garageName,
-                    address: address,
+                    // muestra la hora que manda el backend + 15 minutos
+                    expiration: _formatExpiration(expirationTime),
                     imageAsset: imageAsset,
-                    priceText: priceText,
+                    numEspace: numEspace,
                   ),
                   const SizedBox(height: 24),
 
@@ -135,6 +137,15 @@ class MyBookingsView extends StatelessWidget {
       ),
     );
   }
+
+  // para formatear y sumar 15 minutos
+  String _formatExpiration(DateTime dt) {
+    final result = dt.add(const Duration(minutes: 15));
+    final hour12 = result.hour % 12 == 0 ? 12 : result.hour % 12;
+    final minutes = result.minute.toString().padLeft(2, '0');
+    final ampm = result.hour >= 12 ? 'PM' : 'AM';
+    return '$hour12:$minutes $ampm';
+  }
 }
 
 /* --------------------------- Widgets internos --------------------------- */
@@ -142,15 +153,15 @@ class MyBookingsView extends StatelessWidget {
 class _BookingCard extends StatelessWidget {
   const _BookingCard({
     required this.name,
-    required this.address,
+    required this.expiration,
     this.imageAsset,
-    required this.priceText,
+    required this.numEspace,
   });
 
   final String name;
-  final String address;
+  final String expiration;
   final String? imageAsset;
-  final String priceText;
+  final String numEspace;
 
   static const _blueStart = MyBookingsView._blueStart;
   static const _blueEnd = MyBookingsView._blueEnd;
@@ -208,7 +219,7 @@ class _BookingCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  address,
+                  'Hora de Expiración: $expiration',
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -218,7 +229,7 @@ class _BookingCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  priceText,
+                  'N° de Espacio: $numEspace',
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w700,
