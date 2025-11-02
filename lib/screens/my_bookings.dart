@@ -92,29 +92,13 @@ class MyBookingsView extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
 
-                  // Botones Cancelar y Pagar
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _PillButton(
-                        text: 'Cancelar',
-                        colors: const [Color(0xFFE53935), Color(0xFFEF5350)],
-                        onTap: () => _onCancel(context),
-                      ),
-                      const SizedBox(width: 16),
-                      _PillButton(
-                        text: 'Pagar',
-                        colors: const [_blueStart, _blueEnd],
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const PaymentSummaryPage(),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
+                  // Botón Cancelar (se eliminó el botón "Pagar")
+                  Center(
+                    child: _PillButton(
+                      text: 'Cancelar',
+                      colors: const [Color(0xFFE53935), Color(0xFFEF5350)],
+                      onTap: () => _onCancel(context),
+                    ),
                   ),
                 ],
               ),
