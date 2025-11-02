@@ -15,6 +15,9 @@ class _SearchPageState extends State<SearchPage> {
   static const _blueStart = Color(0xFF2E8AF6);
   static const _blueEnd = Color(0xFF00C2FF);
 
+  // nuevo: mostrar solo favoritos
+  bool _favoritesOnly = false;
+
   // Datos de ejemplo
   final List<GarageItem> _garages = [
     GarageItem(
@@ -50,10 +53,11 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    final filtered =
-        _garages
-            .where((g) => g.name.toLowerCase().contains(_query.toLowerCase()))
-            .toList();
+    final filtered = _garages.where((g) {
+      final matchesQuery = g.name.toLowerCase().contains(_query.toLowerCase());
+      final matchesFav = !_favoritesOnly || g.isFavorite;
+      return matchesQuery && matchesFav;
+    }).toList();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -89,6 +93,8 @@ class _SearchPageState extends State<SearchPage> {
                         const SnackBar(content: Text('Abrir mapa (TODO)')),
                       );
                     },
+                    favoritesOnly: _favoritesOnly,
+                    onToggleFavorites: () => setState(() => _favoritesOnly = !_favoritesOnly),
                   ),
                   const SizedBox(height: 16),
                   Expanded(
@@ -119,8 +125,8 @@ class _SearchPageState extends State<SearchPage> {
                             },
                             onToggleFavorite: () {
                               setState(() {
-                                filtered[i].isFavorite =
-                                    !filtered[i].isFavorite;
+                                // toggle sobre el mismo objeto (modifica _garages)
+                                filtered[i].isFavorite = !filtered[i].isFavorite;
                               });
                             },
                           ),
@@ -186,8 +192,16 @@ class _SearchBar extends StatelessWidget {
   final TextEditingController controller;
   final ValueChanged<String>? onChanged;
   final VoidCallback? onTapMap;
+  final bool favoritesOnly;
+  final VoidCallback? onToggleFavorites;
 
-  const _SearchBar({required this.controller, this.onChanged, this.onTapMap});
+  const _SearchBar({
+    required this.controller,
+    this.onChanged,
+    this.onTapMap,
+    this.favoritesOnly = false,
+    this.onToggleFavorites,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -227,6 +241,24 @@ class _SearchBar extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 10),
+        // corazón para filtrar favoritos
+        InkWell(
+          borderRadius: BorderRadius.circular(22),
+          onTap: onToggleFavorites,
+          child: Container(
+            padding: const EdgeInsets.all(10),
+            margin: const EdgeInsets.only(right: 8),
+            decoration: BoxDecoration(
+              color: favoritesOnly ? Colors.pinkAccent.withOpacity(.14) : const Color(0x1100C2FF),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              favoritesOnly ? Icons.favorite : Icons.favorite_border_rounded,
+              color: favoritesOnly ? Colors.pinkAccent : _SearchPageState._blueEnd,
+            ),
+          ),
+        ),
+        // botón mapa (sigue presente)
         InkWell(
           borderRadius: BorderRadius.circular(22),
           onTap: onTapMap,
@@ -340,8 +372,8 @@ class _GarageCard extends StatelessWidget {
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
                 icon: Icon(
-                  item.isFavorite ? Icons.star : Icons.star_border_rounded,
-                  color: Colors.amber.shade300,
+                  item.isFavorite ? Icons.favorite : Icons.favorite_border_rounded,
+                  color: item.isFavorite ? Colors.pinkAccent : Colors.white70,
                 ),
               ),
             ),

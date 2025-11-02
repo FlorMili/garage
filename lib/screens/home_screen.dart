@@ -14,7 +14,7 @@ class _HomeScreenState extends State<HomeScreen>
   static List<Widget> _widgetOptions = <Widget>[
     SearchPage(),
     MyBookingsView(),
-    _PlaceholderPage('Favoritos'),
+    _PlaceholderPage('Pago'),
     _PlaceholderPage('Perfil'),
   ];
 
@@ -27,13 +27,13 @@ class _HomeScreenState extends State<HomeScreen>
   final List<IconData> _icons = const [
     Icons.map_rounded,
     Icons.receipt_long_rounded,
-    Icons.favorite_rounded,
+    Icons.payment_rounded,
     Icons.person_rounded,
   ];
   final List<String> _labels = const [
     'Buscar',
     'Reservas',
-    'Favoritos',
+    'Pago',
     'Perfil',
   ];
 

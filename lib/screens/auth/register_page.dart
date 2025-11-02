@@ -14,7 +14,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final _lastNameCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
-  final _plateCtrl = TextEditingController();
+  final _passwordCtrl = TextEditingController(); // changed
 
   bool _isLoading = false;
 
@@ -29,7 +29,7 @@ class _RegisterPageState extends State<RegisterPage> {
     _lastNameCtrl.dispose();
     _emailCtrl.dispose();
     _phoneCtrl.dispose();
-    _plateCtrl.dispose();
+    _passwordCtrl.dispose(); // changed
     super.dispose();
   }
 
@@ -161,15 +161,15 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 const SizedBox(height: 12),
                 _GradientField(
-                  controller: _plateCtrl,
-                  hintText: 'Placa de Carro',
-                  icon: Icons.directions_car_filled_rounded,
-                  textCapitalization: TextCapitalization.characters,
-                  validator:
-                      (v) =>
-                          (v == null || v.trim().isEmpty)
-                              ? 'Ingresa la placa'
-                              : null,
+                  controller: _passwordCtrl, // changed
+                  hintText: 'Contraseña', // changed
+                  icon: Icons.lock_rounded, // changed
+                  textCapitalization: TextCapitalization.none,
+                  obscureText: true, // new: hide input
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) return 'Ingresa la contraseña';
+                    return v.trim().length >= 6 ? null : 'La contraseña debe tener al menos 6 caracteres';
+                  },
                 ),
                 const SizedBox(height: 22),
                 _GradientButton(
@@ -302,6 +302,8 @@ class _GradientField extends StatelessWidget {
   final TextInputType? keyboardType;
   final String? Function(String?)? validator;
   final TextCapitalization textCapitalization;
+  final bool obscureText; // new
+  final Widget? suffixIcon; // optional
 
   const _GradientField({
     required this.controller,
@@ -310,6 +312,8 @@ class _GradientField extends StatelessWidget {
     this.keyboardType,
     this.validator,
     this.textCapitalization = TextCapitalization.none,
+    this.obscureText = false, // default false
+    this.suffixIcon,
   });
 
   @override
@@ -333,6 +337,7 @@ class _GradientField extends StatelessWidget {
             keyboardType: keyboardType,
             validator: validator,
             textCapitalization: textCapitalization,
+            obscureText: obscureText, // applied
             decoration: InputDecoration(
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
@@ -341,6 +346,7 @@ class _GradientField extends StatelessWidget {
               border: InputBorder.none,
               hintText: hintText,
               prefixIcon: Icon(icon, color: Colors.grey[600]),
+              suffixIcon: suffixIcon,
             ),
           ),
         ),
