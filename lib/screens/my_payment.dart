@@ -237,7 +237,7 @@ class _BookingCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  checkInTime,
+                  'Hora de Ingreso: $checkInTime',
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -247,7 +247,7 @@ class _BookingCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  priceText,
+                  'Monto a Pagar: $priceText',
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w700,
