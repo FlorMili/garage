@@ -90,6 +90,7 @@ class _PaymentSummaryPageState extends State<PaymentSummaryPage> {
     );
   }
 
+  // ahora muestra el valor como etiqueta (no editable)
   Widget _inputField(String label, TextEditingController controller) {
     return Row(
       children: [
@@ -106,6 +107,7 @@ class _PaymentSummaryPageState extends State<PaymentSummaryPage> {
         Expanded(
           flex: 4,
           child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 10),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 colors: [Color(0xFF2E8AF6), Color(0xFF00C2FF)],
@@ -114,16 +116,12 @@ class _PaymentSummaryPageState extends State<PaymentSummaryPage> {
               ),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: TextField(
-              controller: controller,
+            child: Text(
+              controller.text,
               textAlign: TextAlign.center,
               style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
-              ),
-              decoration: const InputDecoration(
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(vertical: 8),
               ),
             ),
           ),
