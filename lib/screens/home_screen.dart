@@ -14,7 +14,7 @@ class _HomeScreenState extends State<HomeScreen>
   static List<Widget> _widgetOptions = <Widget>[
     SearchPage(),
     MyBookingsView(),
-    _PlaceholderPage('Pago'),
+    MyPaymentView(),
     _PlaceholderPage('Perfil'),
   ];
 

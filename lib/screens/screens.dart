@@ -5,5 +5,6 @@ export 'package:garage/screens/search_page.dart';
 export 'package:garage/screens/my_bookings_page.dart';
 export 'package:garage/screens/check_booking.dart';
 export 'package:garage/screens/my_bookings.dart';
+export 'package:garage/screens/my_payment.dart';
 export 'package:garage/screens/payment_summary_page.dart';
 export 'package:garage/screens/payment_success_page.dart';
