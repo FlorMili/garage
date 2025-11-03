@@ -19,12 +19,14 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
   static const _blueStart = Color(0xFF2E8AF6);
   static const _blueEnd = Color(0xFF00C2FF);
 
-  final _plateCtrl = TextEditingController(text: 'ATW123');
+  final _plateCtrl = TextEditingController(text: '');
+  final FocusNode _plateFocus = FocusNode();
   TimeOfDay? _arrival;
 
   @override
   void dispose() {
     _plateCtrl.dispose();
+    _plateFocus.dispose();
     super.dispose();
   }
 
@@ -35,16 +37,27 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
   }
 
   void _reserve() {
+    // valida hora de llegada
     if (_arrival == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Selecciona la hora de llegada')),
       );
       return;
     }
+    // valida placa (no vacía)
+    final plate = _plateCtrl.text.trim();
+    if (plate.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ingresa la placa del vehículo')),
+      );
+      // poner foco en el campo placa
+      FocusScope.of(context).requestFocus(_plateFocus);
+      return;
+    }
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'Reserva creada: ${_arrival!.format(context)} | Placa ${_plateCtrl.text}',
+          'Reserva creada: ${_arrival!.format(context)} | Placa $plate',
         ),
       ),
     );
@@ -112,7 +125,14 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
                   const SizedBox(height: 12),
 
                   // Plano del parking (placeholder con boxes)
-                  const _ParkingLayout(),
+                  _ParkingLayout(
+                    initialOccupied: {1, 4, 9, 12},
+                    onSelectedChanged: (selected) {
+                      // opcional: reaccionar a la selección (ej. actualizar estado)
+                      // debugPrint('Puestos seleccionados: $selected');
+                    },
+                  ),
+
                   const SizedBox(height: 10),
 
                   // Leyenda
@@ -161,6 +181,7 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
                     child: _GradientBox(
                       child: TextField(
                         controller: _plateCtrl,
+                        focusNode: _plateFocus,
                         textCapitalization: TextCapitalization.characters,
                         decoration: const InputDecoration(
                           border: InputBorder.none,
@@ -297,14 +318,45 @@ class _GradientBox extends StatelessWidget {
   }
 }
 
-/// Plano del estacionamiento (placeholder con boxes ocupados en rojo)
-class _ParkingLayout extends StatelessWidget {
-  const _ParkingLayout();
+/// Plano del estacionamiento (dinámico).
+/// - initialOccupied: puestos fijos ocupados (rojo).
+/// - los puestos no ocupados se muestran gris y al tocar pasan a amarillo (seleccionados).
+class _ParkingLayout extends StatefulWidget {
+  final int itemCount;
+  final Set<int> initialOccupied;
+  final ValueChanged<Set<int>>? onSelectedChanged;
+
+  const _ParkingLayout({
+    this.itemCount = 16,
+    this.initialOccupied = const {},
+    this.onSelectedChanged,
+  });
+
+  @override
+  State<_ParkingLayout> createState() => _ParkingLayoutState();
+}
+
+class _ParkingLayoutState extends State<_ParkingLayout> {
+  late final Set<int> occupied;
+  int? _selected; // id seleccionado (solo uno) o null
+
+  @override
+  void initState() {
+    super.initState();
+    occupied = Set<int>.from(widget.initialOccupied);
+  }
+
+  void _toggle(int id) {
+    if (occupied.contains(id)) return; // no interactuar con ocupados
+    setState(() {
+      // si vuelve a pulsar el mismo, se deselecciona; si pulsa otro, reemplaza selección
+      _selected = (_selected == id) ? null : id;
+    });
+    widget.onSelectedChanged?.call(_selected != null ? {_selected!} : {});
+  }
 
   @override
   Widget build(BuildContext context) {
-    final occupied = {1, 4, 9, 12}; // IDs ficticios de puestos ocupados
-
     return AspectRatio(
       aspectRatio: 16 / 10,
       child: Container(
@@ -321,23 +373,35 @@ class _ParkingLayout extends StatelessWidget {
             mainAxisSpacing: 4,
             crossAxisSpacing: 4,
           ),
-          itemCount: 16, // 2 filas de 8 como ejemplo
+          itemCount: widget.itemCount,
           itemBuilder: (_, i) {
             final id = i + 1;
             final isOcc = occupied.contains(id);
-            return Container(
-              decoration: BoxDecoration(
-                color: isOcc ? Colors.red : Colors.white,
-                borderRadius: BorderRadius.circular(4),
-                border: Border.all(color: Colors.black26, width: .8),
-              ),
-              child: Center(
-                child: Text(
-                  '$id',
-                  style: TextStyle(
-                    color: isOcc ? Colors.white : Colors.black45,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 11,
+            final isSelected = _selected == id;
+            final bg = isOcc
+                ? Colors.red
+                : isSelected
+                    ? const Color.fromARGB(255, 242, 255, 0)
+                    : Colors.grey[400];
+            final textColor = isOcc || isSelected ? const Color.fromARGB(255, 0, 0, 0) : Colors.black87;
+
+            return InkWell(
+              borderRadius: BorderRadius.circular(4),
+              onTap: () => _toggle(id),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: bg,
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: Colors.black26, width: .8),
+                ),
+                child: Center(
+                  child: Text(
+                    '$id',
+                    style: TextStyle(
+                      color: textColor,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 11,
+                    ),
                   ),
                 ),
               ),
