@@ -126,7 +126,7 @@ class _MyBookingsPageState extends State<MyBookingsPage> {
 
                   // Plano del parking (placeholder con boxes)
                   _ParkingLayout(
-                    initialOccupied: {1, 4, 9, 12},
+                    initialOccupied: {1,2,3, 4,7, 9,10,12,13,17,18,19,21,22},
                     onSelectedChanged: (selected) {
                       // opcional: reaccionar a la selección (ej. actualizar estado)
                       // debugPrint('Puestos seleccionados: $selected');
@@ -318,16 +318,17 @@ class _GradientBox extends StatelessWidget {
   }
 }
 
-/// Plano del estacionamiento (dinámico).
-/// - initialOccupied: puestos fijos ocupados (rojo).
-/// - los puestos no ocupados se muestran gris y al tocar pasan a amarillo (seleccionados).
+/// Plano del estacionamiento (dos filas: superior 10, inferior 12).
+/// Slots verticales; solo uno puede quedar seleccionado (amarillo).
 class _ParkingLayout extends StatefulWidget {
-  final int itemCount;
+  final int topCount;
+  final int bottomCount;
   final Set<int> initialOccupied;
   final ValueChanged<Set<int>>? onSelectedChanged;
 
   const _ParkingLayout({
-    this.itemCount = 16,
+    this.topCount = 10,
+    this.bottomCount = 12,
     this.initialOccupied = const {},
     this.onSelectedChanged,
   });
@@ -347,68 +348,71 @@ class _ParkingLayoutState extends State<_ParkingLayout> {
   }
 
   void _toggle(int id) {
-    if (occupied.contains(id)) return; // no interactuar con ocupados
-    setState(() {
-      // si vuelve a pulsar el mismo, se deselecciona; si pulsa otro, reemplaza selección
-      _selected = (_selected == id) ? null : id;
-    });
+    if (occupied.contains(id)) return;
+    setState(() => _selected = (_selected == id) ? null : id);
     widget.onSelectedChanged?.call(_selected != null ? {_selected!} : {});
+  }
+
+  Widget _buildSlot(int id) {
+    final isOcc = occupied.contains(id);
+    final isSelected = _selected == id;
+    final bg = isOcc
+        ? Colors.red
+        : isSelected
+            ? Colors.amber
+            : Colors.grey[400];
+    final textColor = isOcc ? Colors.white : (isSelected ? Colors.black : Colors.black87);
+
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: AspectRatio(
+          aspectRatio: 3 / 5, // vertical rectangle
+          child: InkWell(
+            borderRadius: BorderRadius.circular(6),
+            onTap: () => _toggle(id),
+            child: Container(
+              decoration: BoxDecoration(
+                color: bg,
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: Colors.black26, width: .8),
+              ),
+              child: Center(
+                child: Text(
+                  '$id',
+                  style: TextStyle(
+                    color: textColor,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return AspectRatio(
-      aspectRatio: 16 / 10,
-      child: Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: Colors.grey.shade300,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.black12),
-        ),
-        child: GridView.builder(
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 8,
-            mainAxisSpacing: 4,
-            crossAxisSpacing: 4,
-          ),
-          itemCount: widget.itemCount,
-          itemBuilder: (_, i) {
-            final id = i + 1;
-            final isOcc = occupied.contains(id);
-            final isSelected = _selected == id;
-            final bg = isOcc
-                ? Colors.red
-                : isSelected
-                    ? const Color.fromARGB(255, 242, 255, 0)
-                    : Colors.grey[400];
-            final textColor = isOcc || isSelected ? const Color.fromARGB(255, 0, 0, 0) : Colors.black87;
+    final top = List<Widget>.generate(widget.topCount, (i) => _buildSlot(i + 1));
+    final bottom = List<Widget>.generate(widget.bottomCount, (i) => _buildSlot(widget.topCount + i + 1));
 
-            return InkWell(
-              borderRadius: BorderRadius.circular(4),
-              onTap: () => _toggle(id),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: bg,
-                  borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: Colors.black26, width: .8),
-                ),
-                child: Center(
-                  child: Text(
-                    '$id',
-                    style: TextStyle(
-                      color: textColor,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 11,
-                    ),
-                  ),
-                ),
-              ),
-            );
-          },
+    return Column(
+      children: [
+        // Fila superior
+        SizedBox(
+          height: 120,
+          child: Row(children: top),
         ),
-      ),
+        const SizedBox(height: 8),
+        // Fila inferior
+        SizedBox(
+          height: 120,
+          child: Row(children: bottom),
+        ),
+      ],
     );
   }
 }
